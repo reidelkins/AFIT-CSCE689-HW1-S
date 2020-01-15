@@ -1,4 +1,9 @@
 #include "TCPServer.h"
+#include "MySocket.h"
+
+MySocket serverSocket;
+
+bool forever = true;
 
 TCPServer::TCPServer() {
 
@@ -6,7 +11,7 @@ TCPServer::TCPServer() {
 
 
 TCPServer::~TCPServer() {
-
+    
 }
 
 /**********************************************************************************************
@@ -17,8 +22,8 @@ TCPServer::~TCPServer() {
  **********************************************************************************************/
 
 void TCPServer::bindSvr(const char *ip_addr, short unsigned int port) {
-
-   
+   //int masterSocket = serverSocket->ServerSocket_new(port);
+//    serverSocket->set_NonBlocking(masterSocket);
 }
 
 /**********************************************************************************************
@@ -30,6 +35,10 @@ void TCPServer::bindSvr(const char *ip_addr, short unsigned int port) {
  **********************************************************************************************/
 
 void TCPServer::listenSvr() {
+    while(forever) {
+     //   serverSocket->ServerSocket_accept(serverSocket->ServerSocket sd);
+    }
+
 
 }
 
@@ -40,4 +49,9 @@ void TCPServer::listenSvr() {
  **********************************************************************************************/
 
 void TCPServer::shutdown() {
+   // close();
+    //need to provide the socket that is closed?
 }
+
+
+

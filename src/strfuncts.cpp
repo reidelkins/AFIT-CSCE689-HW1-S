@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <termios.h>
+#include <string>
 #include "strfuncts.h"
 
 void clrNewlines(std::string &str) {
@@ -22,8 +23,7 @@ bool split(std::string &orig, std::string &left, std::string &right, const char 
 }
 
 void lower(std::string &str) {
-   std::transform(str.begin(), str.end(), str.begin(),
-         [](unsigned char c){ return std::tolower(c); });
+   std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c) { return std::tolower(c); });
 }
 
 int hideInput(int fd, bool hide) {
