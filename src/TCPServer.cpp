@@ -1,9 +1,14 @@
 #include "TCPServer.h"
 #include "MySocket.h"
 
-MySocket serverSocket;
+//MySocket serverSocket;
 
 bool forever = true;
+int servSock;
+struct sockaddr_in serv_addr;
+int opt = 1;
+int clilen;
+int fd;
 
 TCPServer::TCPServer() {
 
@@ -22,8 +27,39 @@ TCPServer::~TCPServer() {
  **********************************************************************************************/
 
 void TCPServer::bindSvr(const char *ip_addr, short unsigned int port) {
-   //int masterSocket = serverSocket->ServerSocket_new(port);
+    //masterSocket = serverSocket.MySocket::ServerSocket_new(port);
 //    serverSocket->set_NonBlocking(masterSocket);
+
+    
+    if((servSock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+        //throw socket_error or throw runtime_error
+        perror("ServerSocket_new - socket()");   
+        exit(EXIT_FAILURE);
+        //return(-1);
+    }
+
+    if ((fcntl(servSock, F_SETFL, fcntl(servSock, F_GETFL, 0) | O_NONBLOCK)) < 0) {
+        perror("ServerSocket_new - fcntl()");
+        exit(EXIT_FAILURE);
+
+    }
+
+    if((setsockopt(servSock, SOL_SOCKET, SO_REUSEADDR, (char *)&opt,  sizeof(opt))) < 0 ) {   
+        perror("ServerSocket_new - setsockopt()");
+        exit(EXIT_FAILURE); 
+        //return(-1); 
+    }  
+
+    inet_pton(AF_INET, ip_addr, &(serv_addr.sin_addr));
+    serv_addr.sin_family       = AF_INET;
+    serv_addr.sin_port         = htons(port);
+
+    if ((bind(servSock, (struct sockaddr *)&serv_addr, sizeof(serv_addr))) <0) {
+        perror("ServerSocket_new - bind()");
+        exit(EXIT_FAILURE);
+        //return (-1); 
+    }
+
 }
 
 /**********************************************************************************************
@@ -35,10 +71,21 @@ void TCPServer::bindSvr(const char *ip_addr, short unsigned int port) {
  **********************************************************************************************/
 
 void TCPServer::listenSvr() {
-    while(forever) {
-     //   serverSocket->ServerSocket_accept(serverSocket->ServerSocket sd);
-    }
+    if ((listen(accept_fd, 10)) < 0) {
+            perror("ServerSocket_new:");
+            exit(EXIT_FAILURE);
+            //return (-1);
+        }
 
+    while(forever) {
+    //     serverSocket.ServerSocket_accept(masterSocket);
+        clilen = sizeof(serv_addr);
+        fd = accept(accept_fd, (struct sockaddr *) &cli_addr, &clilen);
+        if (fd < 0) {
+            perror("ServerSocket_accept");
+            exit(EXIT_FAILURE);
+        }
+    }
 
 }
 

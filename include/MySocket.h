@@ -13,19 +13,19 @@ public:
     serverSocket ServerSocket_new(int port);
 
 
-    socket ServerSocket_accept(serverSocket sd);
+    socket ServerSocket_accept(int sd);
 
 
-    socket Socket_new(char * host, int port);
+    // socket Socket_new(char * host, int port);
 
-    int Socket_getc(socket sd);
-
-
-
-    int Socket_putc(int c, socket sd);
+    // int Socket_getc(socket sd);
 
 
-    int Socket_close(socket sd);
+
+    // int Socket_putc(int c, socket sd);
+
+
+    // int Socket_close(socket sd);
 
     // void set_NonBlocking(socket sd);
 

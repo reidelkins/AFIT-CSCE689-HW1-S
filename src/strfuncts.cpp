@@ -2,6 +2,8 @@
 #include <termios.h>
 #include <string>
 #include "strfuncts.h"
+#include <locale>
+#include <cctype>
 
 void clrNewlines(std::string &str) {
    str.erase(std::remove(str.begin(), str.end(), '\r'), str.end());
@@ -23,7 +25,15 @@ bool split(std::string &orig, std::string &left, std::string &right, const char 
 }
 
 void lower(std::string &str) {
-   std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c) { return std::tolower(c); });
+   //std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c) { return std::tolower(c); });
+   
+   // for(char& c : str) {
+   //    std::tolower(c);
+   // }
+
+   for(std::string::size_type i = 0; i < str.size(); ++i) {
+      std::tolower(str[i]);
+   }
 }
 
 int hideInput(int fd, bool hide) {
