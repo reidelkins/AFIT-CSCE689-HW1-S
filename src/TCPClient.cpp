@@ -1,5 +1,19 @@
 #include "TCPClient.h"
 
+#include <fcntl.h>
+#include <sys/socket.h>
+#include <stdio.h>
+#include <netinet/in.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <arpa/inet.h>
+#include <string>
+
+#include <unistd.h>   //close  
+
+#include <string.h>
+#include <cerrno>
+
 
 struct sockaddr_in servAddr;
 struct hostent *addr;
@@ -61,8 +75,8 @@ void TCPClient::connectTo(const char *ip_addr, unsigned short port) {
         perror("\nInvalid address/ Address not supported \n"); 
         exit(EXIT_FAILURE); 
     }
-    servAddr.sin_family       = AF_INET;
-    servAddr.sin_port         = htons(port);
+    tmpAddr.sin_family       = AF_INET;
+    tmpAddr.sin_port         = htons(port);
 
    
     if(connect(thisSock, (struct sockaddr *)&tmpAddr, sizeof(tmpAddr)) < 0) {

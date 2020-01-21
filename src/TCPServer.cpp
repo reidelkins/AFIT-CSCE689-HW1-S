@@ -1,5 +1,19 @@
 #include "TCPServer.h"
 
+#include <fcntl.h>
+#include <sys/socket.h>
+#include <stdio.h>
+#include <netinet/in.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <arpa/inet.h>
+#include <string>
+
+#include <unistd.h>   //close  
+
+#include <string.h>
+#include <cerrno>
+
 struct sockaddr_in serv_addr, cli_addr;
 bool forever = true;
 int servSock, activity, clientSocks[30], sd, cliLen, newSock;
