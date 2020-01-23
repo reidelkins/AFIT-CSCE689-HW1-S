@@ -8,10 +8,7 @@
 #include <sys/types.h>
 #include <arpa/inet.h>
 #include <string>
-
-#include <unistd.h>   //close  
-
-#include <string.h>
+#include <unistd.h>    
 #include <cerrno>
 
 struct sockaddr_in serv_addr, cli_addr;
@@ -38,13 +35,10 @@ TCPServer::~TCPServer() {
  **********************************************************************************************/
 
 void TCPServer::bindSvr(const char *ip_addr, short unsigned int port) {
-    //masterSocket = serverSocket.MySocket::ServerSocket_new(port);
-//    serverSocket->set_NonBlocking(masterSocket);
     if((servSock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         //throw socket_error or throw runtime_error
         perror("bindSvr - socket()");   
         exit(EXIT_FAILURE);
-        //return(-1);
     }
     if ((fcntl(servSock, F_SETFL, fcntl(servSock, F_GETFL, 0) | O_NONBLOCK)) < 0) {
         perror("bindSvr - fcntl()");
@@ -54,7 +48,6 @@ void TCPServer::bindSvr(const char *ip_addr, short unsigned int port) {
     if((setsockopt(servSock, SOL_SOCKET, SO_REUSEADDR, (char *)&opt,  sizeof(opt))) < 0 ) {   
         perror("bindSvr - setsockopt()");
         exit(EXIT_FAILURE); 
-        //return(-1); 
     }  
 
     inet_pton(AF_INET, ip_addr, &(serv_addr.sin_addr));
@@ -65,7 +58,7 @@ void TCPServer::bindSvr(const char *ip_addr, short unsigned int port) {
     if ((bind(servSock, (struct sockaddr *)&serv_addr, servAddrLen)) <0) {
         perror("bindSvr - bind()");
         exit(EXIT_FAILURE);
-        //return (-1); 
+        
     }
 
 }
@@ -79,39 +72,35 @@ void TCPServer::bindSvr(const char *ip_addr, short unsigned int port) {
  **********************************************************************************************/
 
 void TCPServer::listenSvr() {
-//int TCPServer::listenSvr() {
     char buffer[1025];
     int valRead;
-    //std::cout << ("-----------------------------------------------------------");
+
     
     if ((listen(servSock, 10)) < 0) {
             perror("TCPServer - listen");
             exit(EXIT_FAILURE);
-            //return (-1);
         }
+
     
     while(forever) {
-    //     serverSocket.ServerSocket_accept(masterSocket);
 
         FD_ZERO(&incomingFDs);
         FD_SET(servSock, &incomingFDs); 
 		int maxSD = servSock;
 
         for ( int i = 0 ; i < maxSD ; i++) { 
-			//socket descriptor 
 			sd = clientSocks[i]; 
 				
-			//if valid socket descriptor then add to read list 
 			if(sd > 0) {
 				FD_SET( sd , &incomingFDs); 
             }
-			//highest file descriptor number, need it for the select function 
 			if(sd > maxSD) 
 				maxSD = sd; 
 		} 
         activity = select( maxSD + 1 , &incomingFDs , NULL , NULL , NULL);
         if (( activity < 0) && (errno!=EINTR) ) {
             perror("TCPServer - select");
+            break;
 
         }
         
@@ -120,6 +109,7 @@ void TCPServer::listenSvr() {
 				perror("TCPServer - accept"); 
 				exit(EXIT_FAILURE); 
 			}
+            printf("New connection established\n");
 
             for (int i = 0; i < maxSD; i++) { 
 				//if position is empty 
@@ -133,17 +123,13 @@ void TCPServer::listenSvr() {
 
         for (int i = 0; i < maxSD; i++) { 
 			sd = clientSocks[i]; 
-				
-			if (FD_ISSET( sd , &incomingFDs)) 
-			{ 
-				//Check if it was for closing , and also read the 
+			if (FD_ISSET( sd , &incomingFDs)) { 
 				//incoming message 
 				if ((valRead = read( sd , buffer, 1024)) == 0) { 	
 					//Close the socket and mark as 0 in list for reuse 
 					close( sd ); 
 					clientSocks[i] = 0; 
 				} else {
-                
                     buffer[valRead] = '\0';
                     std::string incoming(buffer, strlen(buffer));
                     std::string msg = "";
@@ -153,7 +139,7 @@ void TCPServer::listenSvr() {
                     std::string command;
 
                     
-                    while((position = incoming.find(delimiter)) != std::string::npos) { //strip out commands if sent multiple at once
+                    while((position = incoming.find(delimiter)) != std::string::npos) {
                         command = incoming.substr(0,position);
                         incoming.erase(0,position + delimiter.length());
 
@@ -168,7 +154,7 @@ void TCPServer::listenSvr() {
                         } else if (command == "3") {
                             msg = "The canary islands are named after dogs, not birds";
 
-                        } else if (command == "6") {
+                        } else if (command == "4") {
                             msg = "Robin Williams questioned if god was crazy because of a platypus";
 
                         } else if (command == "5") {
@@ -178,25 +164,25 @@ void TCPServer::listenSvr() {
                             msg = "password received";
 
                         } else if (command == "exit" ) {
-                            //NEED TO CLOSE SOCKET NOW
                             msg = "ending connection";
+                            printf("A client has closed its connection\n");
 
                         } else if (command == "menu" ) {
                             msg = "Possible Commands: hello, 1, 2, 3, 4, 5, passwd, exit, menu";
 
                         } else {
-                            msg = "That was not a valid command";
-                            //DO I FULLY CLOSE SOCKET CONNECTION???
+                            msg = "That was not a valid command, type 'menu' to see a list of commands";
 
                         }
 
+
                         int outlen = msg.length() + 1;
-                        char buffer_out[outlen + 1]; //create buffer
+                        char buffer_out[outlen + 1]; 
 
                         strcpy(buffer_out,msg.c_str());
-                        buffer_out[outlen+1] = '\0'; //recast and add null
+                        buffer_out[outlen+1] = '\0'; 
                     
-                        if( send(sd,buffer_out,strlen(buffer_out),0) != strlen(buffer_out) ) //reply to client
+                        if( send(sd,buffer_out,strlen(buffer_out),0) != strlen(buffer_out) )
                         {
                             perror("send");
                         }
@@ -218,5 +204,4 @@ void TCPServer::listenSvr() {
 void TCPServer::shutdown() {
     //sd.close();
     close(servSock);
-    //need to provide the socket that is closed?
 }
